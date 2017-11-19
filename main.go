@@ -16,12 +16,17 @@ func main() {
 	flag.Parse()
 
 	links := make(chan string)
+	exLinks := make([]string, 1000)
 
 	go func() {
 		for {
 			select {
 			case link := <-links:
+				if found(link, exLinks) {
+					continue
+				}
 				go scrape(link, links)
+				exLinks = append(exLinks, link)
 			}
 		}
 	}()
@@ -67,4 +72,13 @@ func scrape(link string, links chan string) {
 			}
 		}
 	}
+}
+
+func found(who string, where []string) bool {
+	for _, link := range where {
+		if link == who {
+			return true
+		}
+	}
+	return false
 }
